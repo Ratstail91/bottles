@@ -1,7 +1,4 @@
-let express = require('express');
-let app = express();
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+let net = require('net');
 
 //world data goes here
 let world = {
@@ -18,30 +15,41 @@ let world = {
 setInterval(world.onTick, 1000);
 
 //connections
-io.on('connection', (socket) => {
+net.createServer((socket) => {
   console.log('a user connected');
 
   //add to the list of clients
   world.clients.push({
-    //client data goes here
-    socket: socket
+    socket: socket,
+    name: socket.remoteAddress + ':' + socket.remotePort,
+    hp: 10,
+    location: { x: 0, y: 0 },
+    facing: 'N'
   });
 
-  socket.on('disconnect', () => {
-    client.log('a user disconnected');
+  //handle disconnections
+  socket.on('end', () => {
+    console.log('a user disconnected');
 
     world.clients = world.clients.filter((client) => {
       return client.socket !== socket
     });
   });
 
-  //each type of message we can receive
-  socket.on('request', (msg) => {
-    io.emit('response', msg); //echo the message as a response
+  //handle data
+  socket.on('data', (data) => {
+    broadcast(data, socket);
   });
-});
+}).listen(6000);
 
-//finally
-http.listen(6000, () => {
-  console.log('listening to *:6000');
-});
+console.log('Server listening on port 6000');
+
+//for debugging
+function broadcast(message, senderSocket) {
+  world.clients.forEach((client) => {
+    if (client.socket == senderSocket) {
+      return;
+    }
+    client.socket.write(message);
+  });
+}
