@@ -1,0 +1,18 @@
+{
+  "name": "bottles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "forever -o forever.log -e error.log start index.js",
+    "restart": "forever -o forever.log -e error.log restart index.js",
+    "stop": "forever stop index.js",
+    "node": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "forever": "^0.15.3"
+  }
+}
