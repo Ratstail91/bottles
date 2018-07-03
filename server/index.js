@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     client.log('a user disconnected');
+
+    world.clients = world.clients.filter((client) => {
+      return client.socket !== socket
+    });
   });
 
   //each type of message we can receive
