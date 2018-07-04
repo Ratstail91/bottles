@@ -21,6 +21,12 @@ let turnLeft = {
   "E": "N"
 }
 
+//TODO: second map, same dimentions, store bot in map cords
+// this will allow rapid checking if a bot is at a location and save some really bad looping
+
+//TODO: make a function that returns a list of 'projected' cordinate in a direction
+// going to need this behavior in multiple locations
+
 //world data goes here
 let world = {
   map: [
@@ -80,9 +86,15 @@ let world = {
           && (world.map[newX][newY] == 0)
 
         ) {
-          distance += 1;
-          //TODO: check for another client
-          // if client set seen to "B" and set foundWall=true
+          var botcheck = world.clients.map((bcClient) => {
+            return bcClient.location.x == newX && bcClient.location.y == newY;
+          });
+          if (botcheck.includes(true)) {
+            foundWall = true;
+            seen = "B";
+          } else {
+            distance += 1;
+          }
         } else {
           foundWall = true
         }
