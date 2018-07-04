@@ -21,6 +21,13 @@ let turnLeft = {
   "E": "N"
 }
 
+let damageDir = {
+  "N": "S",
+  "S": "N",
+  "W": "E",
+  "E": "W"
+}
+
 //TODO: second map, same dimentions, store bot in map cords
 // this will allow rapid checking if a bot is at a location and save some really bad looping
 
@@ -81,7 +88,7 @@ let world = {
       while (!foundWall) {
         newX = start.x + dir.x * distance;
         newY = start.y + dir.y * distance;
-        ;
+
         if (
           newX >= 0 &&
           newX < world.map.length &&
@@ -111,10 +118,49 @@ let world = {
     //Handle Shooting
     world.clients.forEach((client) => {
       //TODO: Actually Do This
+      if (client.command == "S") {
+        var dir = facing[client.facing];
+        var xFacing = client.facing;
+        var start = client.location;
+
+        var distance = 1;
+        var hitSomething = false;
+        while (!hitSomething) {
+          newX = start.x + dir.x * distance;
+          newY = start.y + dir.y * distance;
+
+          if (
+            newX >= 0 &&
+            newX < world.map.length &&
+            newY >= 0 &&
+            newY < world.map[0].length
+            && (world.map[newX][newY] == 0)
+
+          ) {
+            world.clients.forEach((client) => {
+              if (client.location.x == newX && client.location.y == newY) {
+                hitSomething = true;
+                client.socket.write("D" + damageDir[xFacing] + "\n");
+                client.hp -= 1;
+              }
+            });
+
+            distance += 1;
+          } else {
+            foundWall = true
+          }
+
+        }
+      }
     });
 
-    //Reset command
+    //TODO handle "Dead" Bots
+    // could either disconnect them or send mesage + reset HP + "response"
+
+
+    //Reset command & print current HP
     world.clients.forEach((client) => {
+      client.socket.write("HP" + client.hp.toString() + "\n\n");
       client.command = "W";
     });
   }
