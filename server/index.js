@@ -147,7 +147,7 @@ let world = {
 
             distance += 1;
           } else {
-            foundWall = true
+            hitSomething = true;
           }
 
         }
