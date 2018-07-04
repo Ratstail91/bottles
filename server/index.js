@@ -52,10 +52,14 @@ let world = {
           newY >= 0 &&
           newY < world.map[0].length
           && (world.map[newX][newY] == 0)
-          //TODO: make sure we aren't moving into the location of another client
         ) {
-          client.location.x = newX;
-          client.location.y = newY;
+          var botcheck = world.clients.map((bcClient) => {
+            return bcClient.location.x == newX && bcClient.location.y == newY;
+          });
+          if (!botcheck.includes(true)) {
+            client.location.x = newX;
+            client.location.y = newY;
+          }
         }
       }
       if (client.command == "R") {
