@@ -1,27 +1,29 @@
+//imports
 let net = require('net');
 
-let facing = {
+//constants
+const facing = {
   "N": { x: 1, y: 0 },
   "S": { x: -1, y: 0 },
   "E": { x: 0, y: 1 },
   "W": { x: 0, y: -1 },
 }
 
-let turnRight = {
+const turnRight = {
   "N": "E",
   "E": "S",
   "S": "W",
   "W": "N"
 }
 
-let turnLeft = {
+const turnLeft = {
   "N": "W",
   "W": "S",
   "S": "E",
   "E": "N"
 }
 
-let damageDir = {
+const damageDir = {
   "N": "S",
   "S": "N",
   "W": "E",
@@ -31,7 +33,7 @@ let damageDir = {
 //TODO: second map, same dimentions, store bot in map cords
 // this will allow rapid checking if a bot is at a location and save some really bad looping
 
-//TODO: make a function that returns a list of 'projected' cordinate in a direction
+//TODO: make a function that returns a list of 'projected' cordinates in a direction
 // going to need this behavior in multiple locations
 
 //world data goes here
@@ -48,27 +50,41 @@ let world = {
   clients: [],
 
   onTick: () => {
+    world.HandleMovement();
+    world.HandleVision();
+    world.HandleShooting();
+    world.HandleDeadBots();
+    world.ResetBots();
+  },
+
+  HandleMovement: () => {
     //Handle Movement
     world.clients.forEach((client) => {
       if (client.command == "F") {
         var newX = client.location.x + facing[client.facing].x;
         var newY = client.location.y + facing[client.facing].y;
         if (
+          //TODO: CheckValidSpace(newX, newY)
           newX >= 0 &&
           newX < world.map.length &&
           newY >= 0 &&
           newY < world.map[0].length
           && (world.map[newX][newY] == 0)
         ) {
-          var botcheck = world.clients.map((bcClient) => {
+          //check for a bot in the new position
+          //TODO: CheckForBot(newX, newY)
+          let botcheck = world.clients.map((bcClient) => {
             return bcClient.location.x == newX && bcClient.location.y == newY;
           });
+          //if there is no bot in the new position, move there
           if (!botcheck.includes(true)) {
             client.location.x = newX;
             client.location.y = newY;
           }
         }
       }
+
+      //turn left or turn right
       if (client.command == "R") {
         client.facing = turnRight[client.facing];
       }
@@ -76,7 +92,9 @@ let world = {
         client.facing = turnLeft[client.facing];
       }
     });
+  },
 
+  HandleVision: () => {
     //Handle Vision
     world.clients.forEach((client) => {
       var dir = facing[client.facing];
@@ -90,6 +108,7 @@ let world = {
         newY = start.y + dir.y * distance;
 
         if (
+          //TODO: CheckValidSpace(newX, newY)
           newX >= 0 &&
           newX < world.map.length &&
           newY >= 0 &&
@@ -97,7 +116,8 @@ let world = {
           && (world.map[newX][newY] == 0)
 
         ) {
-          var botcheck = world.clients.map((bcClient) => {
+          //TODO: CheckForBot(newX, newY)
+          let botcheck = world.clients.map((bcClient) => {
             return bcClient.location.x == newX && bcClient.location.y == newY;
           });
           if (botcheck.includes(true)) {
@@ -110,11 +130,15 @@ let world = {
           foundWall = true
         }
       }
-      //TODO make the number format a fixed number of characters
+
+      //TODO: PrintSuchAndSuch()
+      //TODO: make the number format a fixed number of characters
       client.socket.write(client.location.x.toString() + ":" + client.location.y.toString() + ":" + client.facing + "\n");
       client.socket.write(distance.toString() + seen + "\n");
     });
+  },
 
+  HandleShooting: () => {
     //Handle Shooting
     world.clients.forEach((client) => {
       //TODO: Actually Do This
@@ -153,13 +177,17 @@ let world = {
         }
       }
     });
+  },
 
+  HandleDeadBots: () => {
     //TODO handle "Dead" Bots
     // could either disconnect them or send mesage + reset HP + "response"
+  },
 
-
+  ResetBots: () => {
     //Reset command & print current HP
     world.clients.forEach((client) => {
+      //TODO: PrintSuchAndSuch(), with carriage return
       client.socket.write("HP" + client.hp.toString() + "\n\n");
       client.command = "W";
     });
@@ -193,6 +221,7 @@ net.createServer((socket) => {
   });
 
   //handle data
+  //TODO: this is some bad looping, need index
   socket.on('data', (data) => {
     world.clients.forEach((client) => {
       if (client.socket === socket) {
