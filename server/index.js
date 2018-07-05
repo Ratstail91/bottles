@@ -111,7 +111,7 @@ let world = {
         }
       }
       //TODO make the number format a fixed number of characters
-      client.socket.write(client.location.x.toString() + ":" + client.location.x.toString() + ":" + client.facing + "\n");
+      client.socket.write(client.location.x.toString() + ":" + client.location.y.toString() + ":" + client.facing + "\n");
       client.socket.write(distance.toString() + seen + "\n");
     });
 
