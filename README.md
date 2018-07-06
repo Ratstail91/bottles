@@ -14,8 +14,9 @@ system then sends back the feedback for that tick
 
 ## Feedback
 ```
-x:y:<facing>
-<distance><wall/bot>
-D<facing> <- 0 or more of these - you took damage from this direction
-HP<hp> <- your current HP
+x:y:<facing>         // your location and orientation
+<distance><wall/bot> // distance you can see/what you see (a wall or a bot)
+D<facing>            // 0 or more of these - you took damage from this direction
+H<distance>          // distance to a bot you hit
+HP<hp>               // your current HP
 ```
